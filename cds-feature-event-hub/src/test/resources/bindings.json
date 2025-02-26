@@ -1,0 +1,45 @@
+{
+  "VCAP_SERVICES": {
+    "eventmesh-sap2sap-internal": [
+      {
+        "label": "eventmesh-sap2sap-internal",
+        "provider": null,
+        "plan": "event-mesh-multi-tenant",
+        "name": "eb-mt-tests-eb",
+        "tags": [],
+        "instance_guid": "220ae6d2-aff9-4a0e-af63-93d2ee78be9b",
+        "instance_name": "eb-mt-tests-eb",
+        "binding_guid": "77e25652-159a-4ec6-adb4-a4e1e69ab14d",
+        "binding_name": null,
+        "credentials": {
+          "eventing": {
+            "http": {
+              "x509": {
+                "url": "https://http-gateway.canary.beb.em.services.cloud.sap"
+              }
+            }
+          },
+          "authentication-type": "X509_IAS",
+          "serviceInstanceId": "220ae6d2-aff9-4a0e-af63-93d2ee78be9b",
+          "ceSource": [
+            "/cf-eu10-canary/sap.cdsjavacpoc"
+          ],
+          "ias": {
+            "clientId": "a5de02ca-a031-47b6-9bec-e15ac24c663a"
+          },
+          "authentication-service": {
+            "service-label": "identity"
+          },
+          "endpoints": {
+            "eventing-endpoint": {
+              "uri": "https://http-gateway.canary.beb.em.services.cloud.sap",
+              "always-requires-token": false
+            }
+          }
+        },
+        "syslog_drain_url": null,
+        "volume_mounts": []
+      }
+    ]
+  }
+}
