@@ -240,21 +240,6 @@
           </execution>
 
           <execution>
-            <id>cds.build</id>
-            <goals>
-              <goal>cds</goal>
-            </goals>
-            <configuration>
-              <workingDirectory>./src/main/resources/cds/com.sap.cds/cds-feature-event-hub
-              </workingDirectory>
-              <commands>
-                <command>build --for java --src ./ --dest ../../../../../../gen/srv</command>
-              </commands>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-          <execution>
             <id>cds.generate</id>
             <goals>
               <goal>generate</goal>
@@ -262,21 +247,6 @@
             <configuration>
               <basePackage>${generation-package}.cds4j</basePackage>
               <csnFile>${project.basedir}/src/gen/srv/src/main/resources/edmx/csn.json</csnFile>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>cds.test.build</id>
-            <goals>
-              <goal>cds</goal>
-            </goals>
-            <configuration>
-              <workingDirectory>./src/test/resources/cds</workingDirectory>
-              <commands>
-                <command>build --for java --src . --dest ../../gen</command>
-                <command>compile index.cds -2 sql > ../schema.sql</command>
-              </commands>
               <skip>${skipDuringDeploy}</skip>
             </configuration>
           </execution>
