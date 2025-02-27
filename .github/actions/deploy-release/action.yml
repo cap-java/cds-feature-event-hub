@@ -21,7 +21,7 @@ inputs:
     description: "The passphrase for pgp"
     required: true
   revision:
-    description: "The revision of cds-feature-attachments"
+    description: "The revision of cds-feature-event-hub"
     required: true
   maven-version:
     description: "The Maven version the build shall run with."
