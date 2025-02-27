@@ -8,7 +8,7 @@ steps:
     dockerImage: ''
 
   detectExecuteScan:
-    projectName: 'com.sap.cds.feature.attachments'
+    projectName: 'com.sap.cds.feature.event-hub'
     groups:
       - 'CDSJAVA-OPEN-SOURCE'
     serverUrl: 'https://sap.blackducksoftware.com/'
@@ -17,20 +17,20 @@ steps:
     versioningModel: "major-minor"
     detectTools: [ 'DETECTOR', 'BINARY_SCAN' ]
     installArtifacts: true
-    repository: '/cap-java/cds-feature-attachments'
+    repository: '/cap-java/cds-feature-event-hub'
     verbose: true
     scanProperties:
       - --detect.included.detector.types=MAVEN
       - --detect.excluded.directories='**/node_modules,**/*test*,**/localrepo,**/target/site,**/*-site.jar'
       - --detect.maven.excluded.modules=integration-tests,integration-tests/db,integration-tests/srv
-      - --detect.maven.build.command='-pl com.sap.cds:cds-feature-attachments'
+      - --detect.maven.build.command='-pl com.sap.cds:cds-feature-event-hub'
     # https://www.project-piper.io/steps/detectExecuteScan/#dockerimage
     # If empty, Docker is not used and the command is executed directly on the Jenkins system.
     dockerImage: ''
 
   sonarExecuteScan:
     serverUrl: https://sonar.tools.sap
-    projectKey: cds-feature-attachments
+    projectKey: cds-feature-event-hub
     # https://www.project-piper.io/steps/sonarExecuteScan/#dockerimage
     # If empty, Docker is not used and the command is executed directly on the Jenkins system.
     dockerImage: ''
@@ -38,5 +38,5 @@ steps:
       - sonar.qualitygate.wait=true
       - sonar.java.source=17
       - sonar.exclusions=**/node_modules/**,**/target/**
-      - sonar.coverage.jacoco.xmlReportPaths=cds-feature-attachments/target/site/jacoco/jacoco.xml
-      - sonar.coverage.exclusions=cds-feature-attachments/src/test/**,cds-feature-attachments/src/gen/**,integration-tests/**
+      - sonar.coverage.jacoco.xmlReportPaths=cds-feature-event-hub/target/site/jacoco/jacoco.xml
+      - sonar.coverage.exclusions=cds-feature-event-hub/src/test/**,cds-feature-event-hub/src/gen/**,integration-tests/**
