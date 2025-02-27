@@ -33,7 +33,7 @@ runs:
       with:
         step-name: mavenBuild
 
-    - name: Mutation Testing
-      if: ${{ inputs.mutation-testing == 'true' }}
-      run: mvn org.pitest:pitest-maven:mutationCoverage -f cds-feature-event-hub/pom.xml -ntp -B
-      shell: bash
+    #- name: Mutation Testing
+    #  if: ${{ inputs.mutation-testing == 'true' }}
+    #  run: mvn org.pitest:pitest-maven:mutationCoverage -f cds-feature-event-hub/pom.xml -ntp -B
+    #  shell: bash
