@@ -22,7 +22,6 @@ steps:
     scanProperties:
       - --detect.included.detector.types=MAVEN
       - --detect.excluded.directories='**/node_modules,**/*test*,**/localrepo,**/target/site,**/*-site.jar'
-      - --detect.maven.excluded.modules=integration-tests,integration-tests/db,integration-tests/srv
       - --detect.maven.build.command='-pl com.sap.cds:cds-feature-event-hub'
     # https://www.project-piper.io/steps/detectExecuteScan/#dockerimage
     # If empty, Docker is not used and the command is executed directly on the Jenkins system.
@@ -39,4 +38,3 @@ steps:
       - sonar.java.source=17
       - sonar.exclusions=**/node_modules/**,**/target/**
       - sonar.coverage.jacoco.xmlReportPaths=cds-feature-event-hub/target/site/jacoco/jacoco.xml
-      - sonar.coverage.exclusions=cds-feature-event-hub/src/test/**,cds-feature-event-hub/src/gen/**,integration-tests/**
