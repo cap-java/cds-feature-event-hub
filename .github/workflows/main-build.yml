@@ -34,25 +34,24 @@ jobs:
       #    sonarq-token: ${{ secrets.SONARQ_TOKEN }}
       #    github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  scan:
-    name: Blackduck Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      #- name: Scan
-      #  uses: ./.github/actions/scan-with-blackduck
-      #  with:
-      #    blackduck_token: ${{ secrets.BLACK_DUCK_TOKEN }}
-      #    github_token: ${{ secrets.GITHUB_TOKEN }}
-      #    maven-version: ${{ env.MAVEN_VERSION }}
+  # scan:
+  #   name: Blackduck Scan
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 15
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Scan
+  #      uses: ./.github/actions/scan-with-blackduck
+  #      with:
+  #        blackduck_token: ${{ secrets.BLACK_DUCK_TOKEN }}
+  #        github_token: ${{ secrets.GITHUB_TOKEN }}
+  #        maven-version: ${{ env.MAVEN_VERSION }}
 
   deploy-snapshot:
     name: Deploy snapshot to Artifactory
     runs-on: ubuntu-latest
-    needs: [build, scan]
+    needs: [build] # [build, scan]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
