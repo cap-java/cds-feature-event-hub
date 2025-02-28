@@ -23,13 +23,13 @@
   </developers>
 
   <properties>
-    <revision>3.8.0</revision>
+    <revision>4.0.0</revision>
     <java.version>17</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <excluded.generation.package>com/sap/cds/feature/event-hub/generated/</excluded.generation.package>
-    <cds.services.version>3.8.0</cds.services.version>
+    <cds.services.version>3.7.2</cds.services.version>
     <cds.install-cdsdk.version>8.7.3</cds.install-cdsdk.version>
 
     <generation-folder>src/gen</generation-folder>
