@@ -6,8 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## Version 4.0.0 - 2025-XX-XX
+## Version 4.0.0 - 2025-03-XX
 
 ### Added
 
-Initial release of OS plugin
+- Initial release of OS plugin
