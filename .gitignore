@@ -1,0 +1,29 @@
+## IntelliJ
+.idea
+*.iml
+
+## Eclipse
+.project
+.classpath
+.settings/
+
+## Java
+target/
+
+.flattened-pom.xml
+node_modules
+
+## PMD
+.pmd
+.pmdruleset.xml
+
+## Generated classes and resources
+cds-feature-event-hub/src/gen/
+cds-feature-event-hub/src/test/gen/
+cds-feature-event-hub/src/test/resources/gen/
+cds-feature-event-hub/src/test/resources/schema.sql
+
+## files required for local execution of github actions with act
+.env
+.secrets
+event.json

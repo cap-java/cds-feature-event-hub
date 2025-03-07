@@ -1,0 +1,159 @@
+{
+  "$schema": "https://sap.github.io/open-resource-discovery/spec-v1/interfaces/Document.schema.json",
+  "openResourceDiscovery": "1.9",
+  "policyLevel": "none",
+  "description": "this is my custom description",
+  "products": [
+    {
+      "ordId": "customer:product:eb.bm.tests:",
+      "title": "eb bm tests",
+      "shortDescription": "Description for eb bm tests",
+      "vendor": "customer:vendor:customer:"
+    }
+  ],
+  "groups": [
+    {
+      "groupId": "sap.cds:service:sap.cdsjavacpoc:EbMtEmitter",
+      "groupTypeId": "sap.cds:service",
+      "title": "EbMtEmitter Service"
+    }
+  ],
+  "consumptionBundles": [
+    {
+      "ordId": "ebbmtests:consumptionBundle:noAuth:v1",
+      "version": "1.0.0",
+      "lastUpdate": "2024-12-06T08:32:08+01:00",
+      "title": "Unprotected resources",
+      "shortDescription": "If we have another protected API then it will be another object",
+      "description": "This Consumption Bundle contains all resources of the reference app which are unprotected and do not require authentication"
+    }
+  ],
+  "packages": [
+    {
+      "ordId": "sap.cdsjavacpoc:package:ebbmtests:v1",
+      "title": "eb bm tests",
+      "shortDescription": "Short description for eb bm tests",
+      "description": "Description for eb bm tests",
+      "version": "1.0.0",
+      "partOfProducts": [
+        "customer:product:eb.bm.tests:"
+      ],
+      "vendor": "customer:vendor:Customer:"
+    }
+  ],
+  "apiResources": [
+    {
+      "ordId": "sap.cdsjavacpoc:apiResource:EbMtEmitter:v1",
+      "title": "EbMtEmitter",
+      "shortDescription": "Short description for EbMtEmitter",
+      "description": "Description for EbMtEmitter",
+      "version": "1.0.0",
+      "lastUpdate": "2024-12-06T08:32:08+01:00",
+      "visibility": "public",
+      "partOfPackage": "sap.cdsjavacpoc:package:ebbmtests:v1",
+      "partOfGroups": [
+        "sap.cds:service:sap.cdsjavacpoc:EbMtEmitter"
+      ],
+      "releaseStatus": "active",
+      "apiProtocol": "odata-v4",
+      "resourceDefinitions": [
+        {
+          "type": "openapi-v3",
+          "mediaType": "application/json",
+          "url": "/.well-known/open-resource-discovery/v1/api-metadata/EbMtEmitter.oas3.json",
+          "accessStrategies": [
+            {
+              "type": "open"
+            }
+          ]
+        },
+        {
+          "type": "edmx",
+          "mediaType": "application/xml",
+          "url": "/.well-known/open-resource-discovery/v1/api-metadata/EbMtEmitter.edmx",
+          "accessStrategies": [
+            {
+              "type": "open"
+            }
+          ]
+        }
+      ],
+      "entryPoints": [
+        "/odata/v4/eb-mt-emitter"
+      ],
+      "extensible": {
+        "supported": "no"
+      },
+      "entityTypeMappings": [
+        {
+          "entityTypeTargets": []
+        }
+      ]
+    }
+  ],
+  "eventResources": [
+    {
+      "ordId": "sap.cdsjavacpoc:eventResource:EbMtEmitter:v1",
+      "title": "ODM ebbmtests Events",
+      "shortDescription": "EbMtEmitter event resource",
+      "description": "CAP Event resource describing events / messages.",
+      "version": "1.0.0",
+      "lastUpdate": "2024-12-06T08:32:08+01:00",
+      "releaseStatus": "active",
+      "partOfPackage": "sap.cdsjavacpoc:package:ebbmtests:v1",
+      "partOfGroups": [
+        "sap.cds:service:sap.cdsjavacpoc:EbMtEmitter"
+      ],
+      "visibility": "public",
+      "resourceDefinitions": [
+        {
+          "type": "asyncapi-v2",
+          "mediaType": "application/json",
+          "url": "/.well-known/open-resource-discovery/v1/api-metadata/EbMtEmitter.asyncapi2.json",
+          "accessStrategies": [
+            {
+              "type": "open"
+            }
+          ]
+        }
+      ],
+      "extensible": {
+        "supported": "no"
+      }
+    }
+  ],
+  "integrationDependencies": [
+    {
+      "ordId": "sap.cdsjavacpoc:integrationDependency:RawEvent:v1",
+      "localId": "CustomerOrder",
+      "title": "Customer Order Integration Needs",
+      "shortDescription": "Integration dependency to realize customer order data product",
+      "description": "This integration dependency describes all the necessary aspects needed for the custom order data product to get data from. ...",
+      "partOfPackage": "sap.cdsjavacpoc:package:SomePackageIntegrationDependencies:v1",
+      "version": "1.2.3",
+      "lastUpdate": "2022-12-19T15:47:04+00:00",
+      "visibility": "public",
+      "releaseStatus": "active",
+      "mandatory": false,
+      "aspects": [
+        {
+          "title": "RawEvent",
+          "description": "Raw Custom Order Data (For this test case the API reference is not part of this ORD document and will eventually be uploaded to Business Accelerator Hub!)",
+          "mandatory": false,
+          "supportMultipleProviders": true,
+          "eventResources": [
+            {
+              "ordId": "sap.cdsjavacpoc:eventResource:RawEvent:v1",
+              "minVersion": "1.3.0",
+              "subset": [
+                {
+                  "eventType": "sap.cdscpoc.myobject.myoperation.v1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
