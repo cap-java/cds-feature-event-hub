@@ -98,7 +98,6 @@
       <artifactId>wiremock-jetty12</artifactId>
       <version>3.12.1</version>
     </dependency>
-
   </dependencies>
 
   <build>
