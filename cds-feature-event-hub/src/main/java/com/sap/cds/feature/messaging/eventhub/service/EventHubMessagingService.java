@@ -52,7 +52,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
 		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, serviceConfig.isStructured());
 		// emitting messages is only supported in multitenant mode
-		this.eventHubClient = this.isMultitenant ? new EventHubClient(binding, serviceConfig.getConnection().getConnectionPool()) : null;
+		this.eventHubClient = this.isMultitenant ? new EventHubClient(binding) : null;
 	}
 
 	@SuppressWarnings("deprecation")

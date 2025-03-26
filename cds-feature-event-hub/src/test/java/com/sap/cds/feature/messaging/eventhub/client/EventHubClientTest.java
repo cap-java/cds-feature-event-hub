@@ -47,7 +47,7 @@ class EventHubClientTest {
 							withHeader("ce-source", "sourceValue")).
 					respond(response().withStatusCode(200).withBody("{}"));
 
-			EventHubClient client = new EventHubClient(getClientManagementConfig(), new CdsProperties.ConnectionPool());
+			EventHubClient client = new EventHubClient(getClientManagementConfig());
 
 			Map<String, Object> data = new HashMap<>();
 			data.put("attr1", "value1");
