@@ -3,14 +3,13 @@ package com.sap.cds.feature.messaging.eventhub.client;
 import java.io.IOException;
 import java.util.Map;
 
-import com.sap.cds.integration.cloudsdk.rest.client.JsonRestClient;
 import com.sap.cds.services.environment.CdsProperties.ConnectionPool;
 import com.sap.cds.services.messaging.utils.CloudEventUtils;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.sdk.cloudplatform.connectivity.OnBehalfOf;
 import com.sap.cloud.sdk.cloudplatform.connectivity.ServiceBindingDestinationOptions;
 
-public class EventHubClient extends JsonRestClient {
+public class EventHubClient extends RestClient {
 
 	// Maps CloudEvents headers to headers expected by Event Hub
 	private static final Map<String, String> HEADER_MAPPINGS = Map.of(
@@ -22,12 +21,11 @@ public class EventHubClient extends JsonRestClient {
 			CloudEventUtils.KEY_SOURCE, "ce-source"
 	);
 
-	public EventHubClient(ServiceBinding binding, ConnectionPool connectionPool) {
+	public EventHubClient(ServiceBinding binding) {
 		super(ServiceBindingDestinationOptions
 						.forService(binding)
 						.onBehalfOf(OnBehalfOf.TECHNICAL_USER_PROVIDER)
-						.build(),
-				connectionPool);
+						.build());
 	}
 
 	public void sendMessage(Map<String, Object> message, Map<String, Object> headers) throws IOException {
