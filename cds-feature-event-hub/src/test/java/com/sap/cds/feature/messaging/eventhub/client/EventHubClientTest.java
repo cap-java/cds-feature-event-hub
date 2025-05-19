@@ -1,6 +1,5 @@
 package com.sap.cds.feature.messaging.eventhub.client;
 
-import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.runtime.CdsRuntime;
 import com.sap.cds.services.runtime.CdsRuntimeConfigurer;
 import com.sap.cds.services.utils.environment.ServiceBindingUtils;

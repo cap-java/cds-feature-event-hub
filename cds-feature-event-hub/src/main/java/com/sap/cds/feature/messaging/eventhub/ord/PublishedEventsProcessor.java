@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +63,7 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends TreeNode> Optional<T> process(@Nullable String nodeName, @Nullable T node) {
+	public <T extends TreeNode> Optional<T> process(String nodeName, T node) {
 		// - if node is a "packages" node:
 		//   - retrieve and store the ordId of the first package
 		//   - return the passed node again

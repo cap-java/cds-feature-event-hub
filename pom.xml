@@ -28,11 +28,7 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <excluded.generation.package>com/sap/cds/feature/event-hub/generated/</excluded.generation.package>
-    <cds.services.version>3.8.0</cds.services.version>
-    <cds.install-cdsdk.version>8.7.3</cds.install-cdsdk.version>
-
-    <generation-folder>src/gen</generation-folder>
+    <cds.services.version>3.10.1</cds.services.version>
   </properties>
 
   <groupId>com.sap.cds</groupId>
@@ -58,28 +54,6 @@
         <scope>import</scope>
       </dependency>
 
-      <dependency>
-        <groupId>com.sap.cloud.sdk</groupId>
-        <artifactId>sdk-bom</artifactId>
-        <version>5.17.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-bom</artifactId>
-        <version>5.16.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sap.cds</groupId>
-        <artifactId>cds-feature-event-hub</artifactId>
-        <version>${revision}</version>
-      </dependency>
-
       <!-- Mitigate vulnerabilities in commons-codec:commons-codec:1.11 -->
       <dependency>
         <groupId>commons-codec</groupId>
@@ -89,44 +63,18 @@
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.sap.cds</groupId>
-      <artifactId>cds-services-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>5.12.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>3.27.3</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <build>
     <plugins>
-
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.2</version>
       </plugin>
 
       <!-- POM FLATTENING FOR CI FRIENDLY VERSIONS -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.7.0</version>
         <configuration>
           <updatePomFile>true</updatePomFile>
           <flattenMode>resolveCiFriendliesOnly</flattenMode>
@@ -151,9 +99,10 @@
 
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
         <executions>
           <execution>
-            <id>no-duplicate-declared-dependencies</id>
+            <id>enforce-rules</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -177,61 +126,12 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.4.1</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.0</version>
         </plugin>
         <plugin>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>3.3.1</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>3.1.4</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.11.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.26.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.5.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>flatten-maven-plugin</artifactId>
-          <version>1.7.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.12</version>
-        </plugin>
-        <plugin>
-          <groupId>org.pitest</groupId>
-          <artifactId>pitest-maven</artifactId>
-          <version>1.18.2</version>
-        </plugin>
-        <plugin>
-          <groupId>com.github.spotbugs</groupId>
-          <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.9.2.0</version>
-        </plugin>
-        <plugin>
-          <groupId>com.sap.cds</groupId>
-          <artifactId>cds-maven-plugin</artifactId>
-          <version>${cds.services.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

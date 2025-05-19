@@ -3,7 +3,6 @@ package com.sap.cds.feature.messaging.eventhub.client;
 import java.io.IOException;
 import java.util.Map;
 
-import com.sap.cds.services.environment.CdsProperties.ConnectionPool;
 import com.sap.cds.services.messaging.utils.CloudEventUtils;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.sdk.cloudplatform.connectivity.OnBehalfOf;

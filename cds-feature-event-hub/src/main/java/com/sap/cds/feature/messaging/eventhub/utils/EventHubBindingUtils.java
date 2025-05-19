@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sap.cds.services.runtime.CdsRuntime;
-import com.sap.cds.services.utils.CdsErrorStatuses;
 import com.sap.cds.services.utils.ErrorStatusException;
 import com.sap.cds.services.utils.environment.ServiceBindingUtils;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
@@ -29,7 +28,7 @@ public class EventHubBindingUtils {
 			logger.debug("Found EventBroker binding '{}' with service '{}' and plan '{}'", binding.getName().get(), binding.getServiceName().get(), binding.getServicePlan().get());
 			return Optional.of(binding);
 		} else if (bindings.size() > 1) {
-			throw new ErrorStatusException(CdsErrorStatuses.MULTIPLE_EVENT_HUB_BINDINGS);
+			throw new ErrorStatusException(EventHubErrorStatuses.MULTIPLE_EVENT_HUB_BINDINGS);
 		} else {
 			return Optional.empty();
 		}
