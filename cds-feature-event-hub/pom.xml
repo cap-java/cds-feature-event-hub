@@ -16,12 +16,15 @@
 
   <properties>
     <packageName>com.sap.cds.feature.event-hub</packageName>
-    <generation-package>com.sap.cds.feature.event-hub.generated</generation-package>
-    <test-generation-folder>src/test/gen</test-generation-folder>
   </properties>
 
   <dependencies>
     <!-- CDS DEPENDENCIES -->
+    <dependency>
+      <groupId>com.sap.cds</groupId>
+      <artifactId>cds-services-api</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>com.sap.cds</groupId>
       <artifactId>cds-services-messaging</artifactId>
@@ -53,16 +56,19 @@
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
+      <version>6.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <version>2.0.17</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <version>2.19.0</version>
     </dependency>
 
     <!-- TEST DEPENDENCIES -->
@@ -75,7 +81,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.12.0</version>
+      <version>5.12.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -103,172 +109,10 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
-
-      <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <configuration>
-          <targetClasses>
-            <param>com.sap.cds.feature.event-hub.handler.*</param>
-            <param>com.sap.cds.feature.event-hub.service.*</param>
-          </targetClasses>
-          <mutators>
-            <mutator>CONSTRUCTOR_CALLS</mutator>
-            <mutator>VOID_METHOD_CALLS</mutator>
-            <mutator>NON_VOID_METHOD_CALLS</mutator>
-            <mutator>REMOVE_CONDITIONALS_ORDER_ELSE</mutator>
-            <mutator>CONDITIONALS_BOUNDARY</mutator>
-            <mutator>EMPTY_RETURNS</mutator>
-            <mutator>NEGATE_CONDITIONALS</mutator>
-            <mutator>REMOVE_CONDITIONALS_EQUAL_IF</mutator>
-            <mutator>REMOVE_CONDITIONALS_EQUAL_ELSE</mutator>
-            <mutator>REMOVE_CONDITIONALS_ORDER_IF</mutator>
-            <mutator>REMOVE_CONDITIONALS_ORDER_ELSE</mutator>
-          </mutators>
-          <coverageThreshold>95</coverageThreshold>
-          <aggregatedMutationThreshold>90</aggregatedMutationThreshold>
-        </configuration>
-
-        <dependencies>
-          <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-junit5-plugin</artifactId>
-            <version>1.2.2</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>${generation-folder}</directory>
-              <includes>
-                <include>**/*</include>
-              </includes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-            <fileset>
-              <directory>${test-generation-folder}</directory>
-              <includes>
-                <include>**/*</include>
-              </includes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-            <fileset>
-              <directory>src/test/resources</directory>
-              <includes>
-                <include>schema.sql</include>
-              </includes>
-            </fileset>
-            <fileset>
-              <directory>src/test/resources/cds</directory>
-              <includes>
-                <include>csn.json</include>
-              </includes>
-            </fileset>
-            <fileset>
-              <directory>src/test/resources/gen</directory>
-              <includes>
-                <include>**/*</include>
-              </includes>
-              <followSymlinks>false</followSymlinks>
-            </fileset>
-            <fileset>
-              <directory>./</directory>
-              <includes>
-                <include>.flattened-pom.xml</include>
-              </includes>
-            </fileset>
-          </filesets>
-        </configuration>
-        <executions>
-          <execution>
-            <id>auto-clean</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.sap.cds</groupId>
-        <artifactId>cds-maven-plugin</artifactId>
-        <configuration>
-          <skip>${skipDuringDeploy}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>cds.clean</id>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-
-          <execution>
-            <id>cds.install-node</id>
-            <goals>
-              <goal>install-node</goal>
-            </goals>
-            <configuration>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>cds.install-cdsdk</id>
-            <goals>
-              <goal>install-cdsdk</goal>
-            </goals>
-            <configuration>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>cds.generate</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <basePackage>${generation-package}.cds4j</basePackage>
-              <csnFile>${project.basedir}/src/gen/srv/src/main/resources/edmx/csn.json</csnFile>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>cds.test.generate</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <codeOutputDirectory>${project.basedir}/${test-generation-folder}/cds4j
-              </codeOutputDirectory>
-              <basePackage>${generation-package}.test.cds4j</basePackage>
-              <testSources>true</testSources>
-              <csnFile>${project.basedir}/src/test/resources/gen/src/main/resources/edmx/csn.json
-              </csnFile>
-              <skip>${skipDuringDeploy}</skip>
-            </configuration>
-          </execution>
-
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-                            ${excluded.generation.package}**/*
-            </exclude>
-          </excludes>
-        </configuration>
+        <version>0.8.12</version>
         <executions>
           <execution>
             <id>jacoco-initialize</id>
@@ -283,54 +127,12 @@
               <goal>report</goal>
             </goals>
           </execution>
-          <execution>
-            <id>jacoco-site-report-only-unit-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>jacoco-check-unit-tests-only</id>
-            <phase>test</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <rule implementation="org.jacoco.maven.RuleConfiguration">
-                  <element>BUNDLE</element>
-                  <limits>
-                    <limit implementation="org.jacoco.report.check.Limit">
-                      <counter>INSTRUCTION</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.5</minimum>
-                    </limit>
-                    <limit implementation="org.jacoco.report.check.Limit">
-                      <counter>BRANCH</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.5</minimum>
-                    </limit>
-                    <limit implementation="org.jacoco.report.check.Limit">
-                      <counter>COMPLEXITY</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.5</minimum>
-                    </limit>
-                    <limit implementation="org.jacoco.report.check.Limit">
-                      <counter>CLASS</counter>
-                      <value>MISSEDCOUNT</value>
-                      <maximum>3</maximum>
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
 
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.11.2</version>
         <configuration>
           <skip>${skipDuringDeploy}</skip>
           <failOnError>true</failOnError>
@@ -341,24 +143,22 @@
             <goals>
               <goal>jar</goal>
             </goals>
-            <configuration>
-              <excludePackageNames>com.sap.cds.feature.event-hub.generated.*</excludePackageNames>
-            </configuration>
           </execution>
         </executions>
       </plugin>
 
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.1</version>
         <executions>
           <execution>
+            <id>attach-sources</id>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 

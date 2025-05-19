@@ -8,13 +8,12 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import com.sap.cds.feature.messaging.eventhub.utils.EventHubErrorStatuses;
 import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.impl.environment.SimplePropertiesProvider;
 import com.sap.cds.services.messaging.MessagingService;
 import com.sap.cds.services.runtime.CdsRuntime;
 import com.sap.cds.services.runtime.CdsRuntimeConfigurer;
-import com.sap.cds.services.utils.CdsErrorStatuses;
 import com.sap.cds.services.utils.ErrorStatusException;
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingBuilder;
 
@@ -149,6 +148,6 @@ class EventHubMessagingServiceConfigurationTest {
 		});
 
 		ErrorStatusException e = Assertions.assertThrows(ErrorStatusException.class, () -> configurer.serviceConfigurations());
-		assertEquals(CdsErrorStatuses.MULTIPLE_EVENT_HUB_BINDINGS, e.getErrorStatus());
+		assertEquals(EventHubErrorStatuses.MULTIPLE_EVENT_HUB_BINDINGS, e.getErrorStatus());
 	}
 }

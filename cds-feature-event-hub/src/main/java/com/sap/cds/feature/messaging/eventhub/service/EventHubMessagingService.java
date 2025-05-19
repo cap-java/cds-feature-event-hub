@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.sap.cds.feature.messaging.eventhub.client.EventHubClient;
 import com.sap.cds.feature.messaging.eventhub.utils.EventHubBindingUtils;
+import com.sap.cds.feature.messaging.eventhub.utils.EventHubErrorStatuses;
 import com.sap.cds.services.EventContext;
 import com.sap.cds.services.environment.CdsProperties.Messaging.MessagingServiceConfig;
 import com.sap.cds.services.messaging.TopicMessageEventContext;
@@ -39,7 +40,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 	private volatile String providerTenant;
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings("unchecked")
 	public EventHubMessagingService(ServiceBinding binding, MessagingServiceConfig serviceConfig, CdsRuntime cdsRuntime) {
 		super(ensureMandatoryConfig(serviceConfig), cdsRuntime);
 
@@ -50,40 +51,32 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		}
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
-		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, serviceConfig.isStructured());
+		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, true);
 		// emitting messages is only supported in multitenant mode
 		this.eventHubClient = this.isMultitenant ? new EventHubClient(binding) : null;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static MessagingServiceConfig ensureMandatoryConfig(MessagingServiceConfig serviceConfig) {
 		// for event-hub we enforce the cloudevents format
 		serviceConfig.setFormat(FORMAT_CLOUDEVENTS);
-		serviceConfig.setStructured(true);
 		return serviceConfig;
 	}
 
 	@Override
 	public void init() {
 		super.init();
-		if (logger.isDebugEnabled()) {
-			queue.getTopics().forEach(t -> {
-				logger.debug("Registered messaging handler for Event Hub event '{}'", t.getBrokerName());
-			});
-		}
-	}
 
-	@Override
-	protected boolean createOrUpdateQueuesAndSubscriptions() {
-		boolean result = super.createOrUpdateQueuesAndSubscriptions();
 		String queueName = toFullyQualifiedQueueName(queue);
-
 		for(MessageTopic topic : queue.getTopics()) {
 			String topicName = topic.getBrokerName();
 			cacheQueueTopicSubscription(queueName, topicName);
 		}
 
-		return result;
+		if (logger.isDebugEnabled()) {
+			queue.getTopics().forEach(t -> {
+				logger.debug("Registered messaging handler for Event Hub event '{}'", t.getBrokerName());
+			});
+		}
 	}
 
 	protected void cacheQueueTopicSubscription(String queueName, String topicName) {
@@ -133,18 +126,13 @@ public class EventHubMessagingService extends AbstractMessagingService {
 	}
 
 	@Override
-	@SuppressWarnings("removal")
 	protected void emitTopicMessage(String topic, TopicMessageEventContext context) {
 		// emitting messages is only supported in multitenant mode
 		if (!this.isMultitenant) {
-			throw new ErrorStatusException(CdsErrorStatuses.EVENT_HUB_EMIT_FAILED);
+			throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_FAILED);
 		}
 
 		String tenant = getTenant(context);
-
-		if (context.getData() != null) {
-			throw new ErrorStatusException(CdsErrorStatuses.INVALID_CLOUDEVENTS_MESSAGE);
-		}
 
 		try {
 			Map<String, Object> headers = context.getHeadersMap();
@@ -181,7 +169,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			}
 		}
 
-		throw new ErrorStatusException(CdsErrorStatuses.EVENT_HUB_TENANT_CONTEXT_MISSING);
+		throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_TENANT_CONTEXT_MISSING);
 
 	}
 }

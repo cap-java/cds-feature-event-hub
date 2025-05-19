@@ -9,13 +9,12 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import com.sap.cds.feature.messaging.eventhub.utils.EventHubErrorStatuses;
 import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.impl.ContextualizedServiceException;
 import com.sap.cds.services.impl.environment.SimplePropertiesProvider;
 import com.sap.cds.services.runtime.CdsRuntime;
 import com.sap.cds.services.runtime.CdsRuntimeConfigurer;
-import com.sap.cds.services.utils.CdsErrorStatuses;
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingBuilder;
 
 class EventHubMessagingServiceTest {
@@ -42,7 +41,7 @@ class EventHubMessagingServiceTest {
 
 
 		ContextualizedServiceException e = Assertions.assertThrows(ContextualizedServiceException.class, () -> emitMessage(runtime));
-		assertEquals(CdsErrorStatuses.EVENT_HUB_EMIT_FAILED, e.getErrorStatus());
+		assertEquals(EventHubErrorStatuses.EVENT_HUB_EMIT_FAILED, e.getErrorStatus());
 
 	}
 
@@ -61,7 +60,7 @@ class EventHubMessagingServiceTest {
 		CdsRuntime runtime = configurer.complete();
 
 		ContextualizedServiceException e = Assertions.assertThrows(ContextualizedServiceException.class, () -> emitMessage(runtime));
-		assertEquals(CdsErrorStatuses.EVENT_HUB_TENANT_CONTEXT_MISSING, e.getErrorStatus());
+		assertEquals(EventHubErrorStatuses.EVENT_HUB_TENANT_CONTEXT_MISSING, e.getErrorStatus());
 	}
 
 	private void emitMessage(CdsRuntime runtime) {
