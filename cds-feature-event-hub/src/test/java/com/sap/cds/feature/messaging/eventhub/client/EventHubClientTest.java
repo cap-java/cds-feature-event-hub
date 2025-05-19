@@ -46,7 +46,7 @@ class EventHubClientTest {
 				.withHeader("header1", WireMock.equalTo("value1"))
 				.withHeader("ce-source", WireMock.equalTo("sourceValue")).willReturn(WireMock.okJson("{}")));
 
-		EventHubClient client = new EventHubClient(getClientManagementConfig(), new CdsProperties.ConnectionPool());
+		EventHubClient client = new EventHubClient(getClientManagementConfig());
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("attr1", "value1");
