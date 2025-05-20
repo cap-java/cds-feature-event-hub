@@ -1,11 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: maven
-    directories:
-      - "/**/*"
+  - package-ecosystem: "maven"
+    directories: 
+    - "/"
+    - "/srv"
     schedule:
       interval: daily
-    open-pull-requests-limit: 10
+    groups:
+      maven-dependencies:
+        patterns: 
+        - "*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
