@@ -16,6 +16,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Removed
 
+## Version 4.0.1 - 2025-05-20
+
+### Added
+
+- Preparations for compatibility with CAP Java 4
+
 ## Version 4.0.0 - 2025-03-11
 
 ### Added
