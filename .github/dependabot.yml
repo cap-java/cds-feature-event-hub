@@ -1,9 +1,8 @@
 version: 2
 updates:
-  - package-ecosystem: "maven"
+  - package-ecosystem: maven
     directories: 
-    - "/"
-    - "/srv"
+      - "/**/*"
     schedule:
       interval: daily
     groups:
