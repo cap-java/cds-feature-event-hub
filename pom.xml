@@ -69,7 +69,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.3</version>
       </plugin>
-
       <!-- POM FLATTENING FOR CI FRIENDLY VERSIONS -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -96,7 +95,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.5.0</version>
@@ -120,11 +118,39 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+        </configuration>
+      </plugin>
     </plugins>
 
     <pluginManagement>
       <plugins>
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.2.7</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.7.0</version>
+          <extensions>true</extensions>
+        </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.0</version>
@@ -144,9 +170,9 @@
       <url>https://common.repositories.cloud.sap/artifactory/cap-java</url>
     </snapshotRepository>
     <repository>
-      <id>ossrh</id>
+      <id>central</id>
       <name>MavenCentral</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://central.sonatype.com</url>
     </repository>
   </distributionManagement>
 
