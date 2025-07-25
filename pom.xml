@@ -132,16 +132,6 @@
 
     <pluginManagement>
       <plugins>
-        <!-- <plugin>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.2.7</version>
-        </plugin> -->
-        <!-- <plugin>
-          <groupId>org.sonatype.central</groupId>
-          <artifactId>central-publishing-maven-plugin</artifactId>
-          <version>0.7.0</version>
-          <extensions>true</extensions>
-        </plugin> -->
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.0</version>
