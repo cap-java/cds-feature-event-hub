@@ -51,7 +51,7 @@ runs:
     - name: Import GPG Key
       run: |
         echo "${{ inputs.pgp-private-key }}" | gpg --batch --passphrase "$PASSPHRASE" --import
-      shell: bash  
+      shell: bash
       env:
         PASSPHRASE: ${{ inputs.pgp-passphrase }}
 
@@ -62,7 +62,7 @@ runs:
         -Dmaven.test.skip=true
         -Dgpg.passphrase="$GPG_PASSPHRASE"
         -Dgpg.keyname="$GPG_PUB_KEY"
-        clean deploy
+        clean deploy -P deploy-release
       shell: bash
       env:
         MAVEN_CENTRAL_USER: ${{ inputs.user }}
