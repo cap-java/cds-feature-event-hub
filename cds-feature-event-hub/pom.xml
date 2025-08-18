@@ -132,7 +132,7 @@
 
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.11.2</version>
+        <version>3.11.3</version>
         <configuration>
           <skip>${skipDuringDeploy}</skip>
           <failOnError>true</failOnError>
