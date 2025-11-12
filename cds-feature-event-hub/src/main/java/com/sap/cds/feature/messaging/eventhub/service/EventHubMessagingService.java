@@ -52,8 +52,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
 		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, true);
-		// emitting messages is only supported in multitenant mode
-		this.eventHubClient = this.isMultitenant ? new EventHubClient(binding) : null;
+		this.eventHubClient = new EventHubClient(binding);
 	}
 
 	private static MessagingServiceConfig ensureMandatoryConfig(MessagingServiceConfig serviceConfig) {
@@ -127,17 +126,16 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 	@Override
 	protected void emitTopicMessage(String topic, TopicMessageEventContext context) {
-		// emitting messages is only supported in multitenant mode
-		if (!this.isMultitenant) {
-			throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_FAILED);
-		}
-
 		String tenant = getTenant(context);
 
 		try {
 			Map<String, Object> headers = context.getHeadersMap();
-			if (ceSource != null) {
-				headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+			if (!isMultitenant && headers.containsKey("ce-source")) {
+				headers.put(CloudEventUtils.KEY_SOURCE, headers.get("ce-source"));
+			} else {
+				if (ceSource != null) {
+					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+				}
 			}
 
 			logger.debug("Sending message for Event Hub '{}' to type '{}'", getName(), headers.get(CloudEventUtils.KEY_TYPE));

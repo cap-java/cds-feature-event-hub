@@ -42,10 +42,10 @@ public class EventHubWebhookAdapter extends HttpServlet {
 	public EventHubWebhookAdapter(CdsRuntime runtime) {
 		this.runtime = runtime;
 		this.messagingServices = runtime.getServiceCatalog().getServices(MessagingService.class)
-				.map(OutboxService::unboxed)
-				.filter(EventHubMessagingService.class::isInstance)
-				.map(EventHubMessagingService.class::cast)
-				.toList();
+			.map(OutboxService::unboxed)
+			.filter(EventHubMessagingService.class::isInstance)
+			.map(EventHubMessagingService.class::cast)
+			.toList();
 		ServiceBinding binding = EventHubBindingUtils.getServiceBinding(runtime).get();
 		this.clientId = EventHubBindingUtils.getClientId(binding);
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
