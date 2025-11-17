@@ -22,9 +22,9 @@ public class EventHubClient extends RestClient {
 
 	public EventHubClient(ServiceBinding binding) {
 		super(ServiceBindingDestinationOptions
-						.forService(binding)
-						.onBehalfOf(OnBehalfOf.TECHNICAL_USER_PROVIDER)
-						.build());
+			.forService(binding)
+			.onBehalfOf(OnBehalfOf.TECHNICAL_USER_PROVIDER)
+			.build());
 	}
 
 	public void sendMessage(Map<String, Object> message, Map<String, Object> headers) throws IOException {

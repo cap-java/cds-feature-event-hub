@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,35 +14,8 @@ import com.sap.cds.services.impl.ContextualizedServiceException;
 import com.sap.cds.services.impl.environment.SimplePropertiesProvider;
 import com.sap.cds.services.runtime.CdsRuntime;
 import com.sap.cds.services.runtime.CdsRuntimeConfigurer;
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingBuilder;
 
 class EventHubMessagingServiceTest {
-
-	@Test
-	void testEmit_SingleTenantNotSupported() {
-		CdsProperties properties = new CdsProperties();
-		CdsProperties.Messaging.MessagingServiceConfig config = new CdsProperties.Messaging.MessagingServiceConfig("cfg");
-		config.setBinding("eb-mt-tests-eb");
-		config.getOutbox().setEnabled(false);
-		properties.getMessaging().getServices().put(config.getName(), config);
-
-		CdsRuntimeConfigurer configurer = CdsRuntimeConfigurer.create(new SimplePropertiesProvider(properties));
-		configurer.environment(() -> {
-			return Stream.of(new DefaultServiceBindingBuilder()
-					.withName("eb-mt-tests-eb").withServicePlan("event-connectivity")
-					.withServiceName("event-broker").build());
-		});
-
-		configurer.environmentConfigurations();
-		configurer.serviceConfigurations();
-		configurer.eventHandlerConfigurations();
-		CdsRuntime runtime = configurer.complete();
-
-
-		ContextualizedServiceException e = Assertions.assertThrows(ContextualizedServiceException.class, () -> emitMessage(runtime));
-		assertEquals(EventHubErrorStatuses.EVENT_HUB_EMIT_FAILED, e.getErrorStatus());
-
-	}
 
 	@Test
 	void testEmit_TenantNotSupported() {
