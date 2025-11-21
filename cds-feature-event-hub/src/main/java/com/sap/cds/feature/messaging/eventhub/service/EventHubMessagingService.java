@@ -31,8 +31,10 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventHubMessagingService.class);
 	public  static final String CE_SOURCE = "ceSource";
+	public  static final String SYSTEM_ID = "systemId";
 
 	private final String ceSource;
+	private final String systemId;
 	private final boolean isMultitenant;
 	private final MessagingBrokerQueueListener queueListener;
 	private final EventHubClient eventHubClient;
@@ -48,6 +50,12 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			this.ceSource = ((List<String>) binding.getCredentials().get(CE_SOURCE)).get(0) + '/';
 		} else {
 			this.ceSource = null;
+		}
+
+		if (binding.getCredentials().containsKey(SYSTEM_ID)) {
+			this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
+		} else {
+			this.systemId = null;
 		}
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
@@ -132,11 +140,13 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 		try {
 			Map<String, Object> headers = context.getHeadersMap();
-			if (!isMultitenant && headers.containsKey("ce-source")) {
-				headers.put(CloudEventUtils.KEY_SOURCE, headers.get("ce-source"));
-			} else {
+			if (isMultitenant) {
 				if (ceSource != null) {
 					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+				}
+			} else {
+				if (systemId != null) {
+					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
 				}
 			}
 
