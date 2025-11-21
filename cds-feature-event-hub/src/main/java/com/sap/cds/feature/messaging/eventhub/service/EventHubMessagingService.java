@@ -147,6 +147,8 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			} else {
 				if (systemId != null) {
 					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
+				} else {
+					logger.error("Missing System-ID, emit() will be deactivated");
 				}
 			}
 
