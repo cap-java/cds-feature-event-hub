@@ -50,12 +50,14 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			this.ceSource = ((List<String>) binding.getCredentials().get(CE_SOURCE)).get(0) + '/';
 		} else {
 			this.ceSource = null;
+			logger.error("Missing ceSource in binding credentials, emit() will be deactivated");
 		}
 
 		if (binding.getCredentials().containsKey(SYSTEM_ID)) {
 			this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
 		} else {
 			this.systemId = null;
+			logger.error("Missing systemId in binding credentials, emit() will be deactivated");
 		}
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
@@ -143,12 +145,14 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			if (isMultitenant) {
 				if (ceSource != null) {
 					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+				} else {
+					throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
 				}
 			} else {
 				if (systemId != null) {
 					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
 				} else {
-					logger.error("Missing System-ID, emit() will be deactivated");
+					throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_SYSTEM_ID);
 				}
 			}
 
@@ -160,7 +164,6 @@ public class EventHubMessagingService extends AbstractMessagingService {
 	}
 
 	private String getTenant(EventContext context) {
-
 		String tenant = context.getUserInfo().getTenant();
 
 		if (tenant != null) {
