@@ -33,6 +33,7 @@ public class EventHubMessagingServiceConfiguration implements CdsRuntimeConfigur
 			List<MessagingServiceConfig> serviceConfigs = config.getServicesByBinding(binding.getName().get());
 
 			if (!serviceConfigs.isEmpty()) {
+				logger.debug("Initialization of the Event Hub based on service binding '{}'", binding.getName().get());
 				createDefaultService = false;
 				serviceConfigs.forEach(serviceConfig -> {
 					if (Boolean.TRUE.equals(serviceConfig.isEnabled())) {
@@ -50,13 +51,16 @@ public class EventHubMessagingServiceConfiguration implements CdsRuntimeConfigur
 				logger.debug("Initialization of the Event Hub based on service binding '{}' and kind '{}'", binding.getName().get(), KIND_LABEL);
 				createDefaultService = false;
 				serviceConfigsByKind.forEach(serviceConfig -> {
-					// check that the service is enabled and whether not already found by name or binding
-					if (Boolean.TRUE.equals(serviceConfig.isEnabled())
-							&& serviceConfigs.stream().noneMatch(c -> c.getName().equals(serviceConfig.getName()))) {
-						configureService(configurer, binding, serviceConfig);
-					} else {
-						logger.info("The messaging service '{}' is explicitly disabled via configuration", serviceConfig.getName());
+					// check whether the service config is not already found by name or binding
+					if (serviceConfigs.stream().noneMatch(c -> c.getName().equals(serviceConfig.getName()))) {
+						// check that the service is enabled
+						if (Boolean.TRUE.equals(serviceConfig.isEnabled())) {
+							configureService(configurer, binding, serviceConfig);
+						} else {
+							logger.info("The messaging service '{}' is explicitly disabled via configuration", serviceConfig.getName());
+						}
 					}
+
 				});
 			}
 
@@ -69,18 +73,18 @@ public class EventHubMessagingServiceConfiguration implements CdsRuntimeConfigur
 					configureService(configurer, binding, defConfig);
 				} else {
 					logger.warn(
-							"Could not create service for binding '{}': A configuration with the same name is already defined for another kind or binding.",
-							binding.getName().get());
+						"Could not create service for binding '{}': A configuration with the same name is already defined for another kind or binding.",
+						binding.getName().get());
 				}
 			}
 
-			logger.debug("Finished the initialization of the Event Hub service binding '{}'", binding.getName().get());
+			logger.info("Finished the initialization of the Event Hub service binding '{}'", binding.getName().get());
 		});
 	}
 
 	private void configureService(CdsRuntimeConfigurer configurer, ServiceBinding binding, MessagingServiceConfig serviceConfig) {
+		logger.debug("Loading config '{}' for service binding '{}'", serviceConfig.getName(), binding.getName().get());
 		EventHubMessagingService messagingService = new EventHubMessagingService(binding, serviceConfig, configurer.getCdsRuntime());
 		configurer.service(outboxed(messagingService, serviceConfig, configurer.getCdsRuntime()));
 	}
-
 }
