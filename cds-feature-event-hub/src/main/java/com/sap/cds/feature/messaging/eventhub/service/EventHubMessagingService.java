@@ -30,8 +30,8 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 public class EventHubMessagingService extends AbstractMessagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventHubMessagingService.class);
-	public  static final String CE_SOURCE = "ceSource";
-	public  static final String SYSTEM_ID = "systemId";
+	public static final String CE_SOURCE = "ceSource";
+	public static final String SYSTEM_ID = "systemId";
 
 	private final String ceSource;
 	private final String systemId;
@@ -78,7 +78,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		super.init();
 
 		String queueName = toFullyQualifiedQueueName(queue);
-		for(MessageTopic topic : queue.getTopics()) {
+		for (MessageTopic topic : queue.getTopics()) {
 			String topicName = topic.getBrokerName();
 			cacheQueueTopicSubscription(queueName, topicName);
 		}
@@ -114,7 +114,6 @@ public class EventHubMessagingService extends AbstractMessagingService {
 	public boolean isRegisteredBrokerTopic(String event) {
 		return queue.getTopics().stream().anyMatch(t -> t.getBrokerName().equals(event));
 	}
-
 
 	@Override
 	protected void removeQueue(String name) throws IOException {
