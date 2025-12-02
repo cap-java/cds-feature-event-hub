@@ -24,6 +24,7 @@ class EventHubBindingUtilsTest {
 	public void setUp() throws Exception {
 		loadBinding("mt-binding", "bindings-mt.json");
 		loadBinding("st-binding", "bindings-st.json");
+		loadBinding("st-binding-no-endpoints", "bindings-st-no-endpoints.json");
 	}
 
 	private void loadBinding(String id, String bindingPath) {
@@ -59,8 +60,8 @@ class EventHubBindingUtilsTest {
 
 	@Test
 	void testBindingHasEndpoints() {
-		for (ServiceBinding binding : bindings.values()) {
-			assertTrue(EventHubBindingUtils.bindingHasEndpoints(binding));
-		}
+		assertTrue(EventHubBindingUtils.bindingHasEndpoints(bindings.get("mt-binding")));
+		assertTrue(EventHubBindingUtils.bindingHasEndpoints(bindings.get("st-binding")));
+		assertFalse(EventHubBindingUtils.bindingHasEndpoints(bindings.get("st-binding-no-endpoints")));
 	}
 }

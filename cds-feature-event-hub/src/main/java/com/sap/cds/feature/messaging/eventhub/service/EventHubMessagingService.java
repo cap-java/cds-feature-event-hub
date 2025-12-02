@@ -63,8 +63,12 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
 		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, true);
 
-		boolean bindingHasEndpoints = EventHubBindingUtils.bindingHasEndpoints(binding);
-		this.eventHubClient = bindingHasEndpoints ? new EventHubClient(binding) : null;
+		if (EventHubBindingUtils.bindingHasEndpoints(binding)) {
+			this.eventHubClient = new EventHubClient(binding);
+		} else {
+			this.eventHubClient = null;
+			logger.error("No endpoints found in service binding, emit() will be deactivated");
+		}
 	}
 
 	private static MessagingServiceConfig ensureMandatoryConfig(MessagingServiceConfig serviceConfig) {
@@ -137,24 +141,30 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 	@Override
 	protected void emitTopicMessage(String topic, TopicMessageEventContext context) {
+		if (eventHubClient == null) {
+			throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_ENDPOINTS);
+		}
+
 		String tenant = getTenant(context);
+		Map<String, Object> headers = context.getHeadersMap();
+		if (isMultitenant) {
+			if (ceSource == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
+			}
+			
+			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+		} else {
+			if (systemId == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_SYSTEM_ID);
+			}
+			if (ceSource == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
+			}
+			
+			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
+		}
 
 		try {
-			Map<String, Object> headers = context.getHeadersMap();
-			if (isMultitenant) {
-				if (ceSource != null) {
-					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
-				} else {
-					throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
-				}
-			} else {
-				if (systemId != null) {
-					headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
-				} else {
-					throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_SYSTEM_ID);
-				}
-			}
-
 			logger.debug("Sending message for Event Hub '{}' to type '{}'", getName(), headers.get(CloudEventUtils.KEY_TYPE));
 			eventHubClient.sendMessage(context.getDataMap(), headers);
 		} catch (IOException e) {
