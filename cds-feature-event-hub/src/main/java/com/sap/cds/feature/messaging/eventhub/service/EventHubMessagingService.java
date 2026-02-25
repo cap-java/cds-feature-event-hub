@@ -61,7 +61,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		}
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
-		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, true);
+		this.queueListener = new MessagingBrokerQueueListener(this, serviceConfig, toFullyQualifiedQueueName(queue), queue, cdsRuntime);
 
 		if (EventHubBindingUtils.bindingHasEndpoints(binding)) {
 			this.eventHubClient = new EventHubClient(binding);

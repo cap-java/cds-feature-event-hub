@@ -28,7 +28,7 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <cds.services.version>4.1.1</cds.services.version>
+    <cds.services.version>4.7.0</cds.services.version>
   </properties>
 
   <groupId>com.sap.cds</groupId>
@@ -52,13 +52,6 @@
         <version>${cds.services.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <!-- Mitigate vulnerabilities in commons-codec:commons-codec:1.11 -->
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.19.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
