@@ -33,8 +33,10 @@ class EventHubMessagingServiceConfigurationTest {
 		CdsRuntimeConfigurer configurer = CdsRuntimeConfigurer.create();
 		configurer.environment(() -> {
 			return Stream.of(new DefaultServiceBindingBuilder()
-					.withName("eb-mt-tests-eb").withServicePlan("event-connectivity")
-					.withServiceName("event-broker").build());
+				.withName("eb-mt-tests-eb")
+				.withServiceName("event-broker")
+				.withServicePlan("event-connectivity")
+				.build());
 		});
 
 		configurer.serviceConfigurations();

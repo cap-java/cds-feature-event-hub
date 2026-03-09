@@ -46,4 +46,10 @@ public class EventHubBindingUtils {
 		return ServiceBindingUtils.matches(binding, MT_BINDING_LABEL);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static boolean bindingHasEndpoints(ServiceBinding binding) {
+		Map<String, Object> credentials = binding.getCredentials();
+		Map<String, Object> endpoints = (Map<String, Object>) credentials.getOrDefault("endpoints", Map.of());
+		return !endpoints.isEmpty();
+	}
 }

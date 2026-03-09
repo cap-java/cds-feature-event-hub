@@ -7,6 +7,10 @@
 .classpath
 .settings/
 
+## VS Code
+java-formatter.xml
+settings.json
+
 ## Java
 target/
 

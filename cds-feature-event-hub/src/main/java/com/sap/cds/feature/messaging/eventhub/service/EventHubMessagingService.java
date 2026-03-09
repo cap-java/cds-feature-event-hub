@@ -30,9 +30,11 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 public class EventHubMessagingService extends AbstractMessagingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventHubMessagingService.class);
-	public  static final String CE_SOURCE = "ceSource";
+	public static final String CE_SOURCE = "ceSource";
+	public static final String SYSTEM_ID = "systemId";
 
 	private final String ceSource;
+	private final String systemId;
 	private final boolean isMultitenant;
 	private final MessagingBrokerQueueListener queueListener;
 	private final EventHubClient eventHubClient;
@@ -48,12 +50,25 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			this.ceSource = ((List<String>) binding.getCredentials().get(CE_SOURCE)).get(0) + '/';
 		} else {
 			this.ceSource = null;
+			logger.error("Missing ceSource in binding credentials, emit() will be deactivated");
+		}
+
+		if (binding.getCredentials().containsKey(SYSTEM_ID)) {
+			this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
+		} else {
+			this.systemId = null;
+			logger.error("Missing systemId in binding credentials, emit() will be deactivated");
 		}
 
 		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
-		this.queueListener = new MessagingBrokerQueueListener(this, toFullyQualifiedQueueName(queue), queue, runtime, true);
-		// emitting messages is only supported in multitenant mode
-		this.eventHubClient = this.isMultitenant ? new EventHubClient(binding) : null;
+		this.queueListener = new MessagingBrokerQueueListener(this, serviceConfig, toFullyQualifiedQueueName(queue), queue, cdsRuntime);
+
+		if (EventHubBindingUtils.bindingHasEndpoints(binding)) {
+			this.eventHubClient = new EventHubClient(binding);
+		} else {
+			this.eventHubClient = null;
+			logger.error("No endpoints found in service binding, emit() will be deactivated");
+		}
 	}
 
 	private static MessagingServiceConfig ensureMandatoryConfig(MessagingServiceConfig serviceConfig) {
@@ -67,7 +82,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		super.init();
 
 		String queueName = toFullyQualifiedQueueName(queue);
-		for(MessageTopic topic : queue.getTopics()) {
+		for (MessageTopic topic : queue.getTopics()) {
 			String topicName = topic.getBrokerName();
 			cacheQueueTopicSubscription(queueName, topicName);
 		}
@@ -104,7 +119,6 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		return queue.getTopics().stream().anyMatch(t -> t.getBrokerName().equals(event));
 	}
 
-
 	@Override
 	protected void removeQueue(String name) throws IOException {
 		// not used
@@ -127,19 +141,30 @@ public class EventHubMessagingService extends AbstractMessagingService {
 
 	@Override
 	protected void emitTopicMessage(String topic, TopicMessageEventContext context) {
-		// emitting messages is only supported in multitenant mode
-		if (!this.isMultitenant) {
-			throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_FAILED);
+		if (eventHubClient == null) {
+			throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_ENDPOINTS);
 		}
 
 		String tenant = getTenant(context);
+		Map<String, Object> headers = context.getHeadersMap();
+		if (isMultitenant) {
+			if (ceSource == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
+			}
+			
+			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+		} else {
+			if (systemId == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_SYSTEM_ID);
+			}
+			if (ceSource == null) {
+				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
+			}
+			
+			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
+		}
 
 		try {
-			Map<String, Object> headers = context.getHeadersMap();
-			if (ceSource != null) {
-				headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
-			}
-
 			logger.debug("Sending message for Event Hub '{}' to type '{}'", getName(), headers.get(CloudEventUtils.KEY_TYPE));
 			eventHubClient.sendMessage(context.getDataMap(), headers);
 		} catch (IOException e) {
@@ -148,7 +173,6 @@ public class EventHubMessagingService extends AbstractMessagingService {
 	}
 
 	private String getTenant(EventContext context) {
-
 		String tenant = context.getUserInfo().getTenant();
 
 		if (tenant != null) {
