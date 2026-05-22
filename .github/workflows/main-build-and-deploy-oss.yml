@@ -93,6 +93,7 @@ jobs:
   deploy:
     name: Deploy to Maven Central
     runs-on: ubuntu-latest
+    environment: release-secrets
     #needs: [blackduck, build]
     needs: [build]
     steps:
@@ -103,8 +104,8 @@ jobs:
       - name: Deploy
         uses: ./.github/actions/deploy-release
         with:
-          user: ${{ secrets.CENTRAL_REPOSITORY_USER }}
-          password: ${{ secrets.CENTRAL_REPOSITORY_PASS }}
+          user: ${{ secrets.CAP_JAVA_CDS_FEATURE_EVENT_HUB_USER }}
+          password: ${{ secrets.CAP_JAVA_CDS_FEATURE_EVENT_HUB_PASS }}
           pgp-pub-key: ${{ secrets.PGP_PUBKEY_ID }}
           pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
           pgp-passphrase: ${{ secrets.PGP_PASSPHRASE }}
