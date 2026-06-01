@@ -13,31 +13,40 @@ jobs:
     name: Blackduck Scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Scan With Black Duck
-        uses: ./.github/actions/scan-with-blackduck
+        uses: cap-java/.github/actions/scan-with-blackduck@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
         with:
           blackduck_token: ${{ secrets.BLACK_DUCK_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           maven-version: ${{ env.MAVEN_VERSION }}
-          scan_mode: RAPID
+          project-name: com.sap.cds.feature.event-hub
+          included-modules: cds-feature-event-hub
+          scan_mode: FULL
   codeql:
     name: CodeQL Scan
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Scan With CodeQL
-        continue-on-error: true
-        uses: ./.github/actions/scan-with-codeql
+        uses: cap-java/.github/actions/scan-with-codeql@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
         with:
           maven-version: ${{ env.MAVEN_VERSION }}
           java-version: ${{ env.JAVA_VERSION }}
+          language: java-kotlin
+          queries: security-extended
 
 #  update-version:
 #    name: Update Version
@@ -114,13 +123,13 @@ jobs:
         with:
           name: root-build
       - name: Deploy
-        uses: ./.github/actions/deploy-release
+        uses: cap-java/.github/actions/deploy-release@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
         with:
           user: ${{ secrets.CAP_JAVA_CDS_FEATURE_EVENT_HUB_USER }}
           password: ${{ secrets.CAP_JAVA_CDS_FEATURE_EVENT_HUB_PASS }}
-          pgp-pub-key: ${{ secrets.PGP_PUBKEY_ID }}
-          pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
-          pgp-passphrase: ${{ secrets.PGP_PASSPHRASE }}
+          gpg-pub-key: ${{ secrets.PGP_PUBKEY_ID }}
+          gpg-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.PGP_PASSPHRASE }}
           revision: ${{ github.event.release.tag_name }}
           maven-version: ${{ env.MAVEN_VERSION }}
       - name: Echo Status
