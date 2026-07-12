@@ -1,13 +1,44 @@
 name: Pull Request Voter
 
+permissions:
+  actions: read
+  contents: read
+  packages: read
+  security-events: write
+
 env:
   MAVEN_VERSION: '3.9.15'
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [ "main" ]
+    types: [reopened, synchronize, opened]
 
 jobs:
+  blackduck:
+    name: Blackduck Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Scan With Black Duck
+        uses: cap-java/.github/actions/scan-with-blackduck@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
+        with:
+          blackduck_token: ${{ secrets.BLACK_DUCK_TOKEN }}
+          maven-version: ${{ env.MAVEN_VERSION }}
+          project-name: com.sap.cds.feature.event-hub
+          included-modules: cds-feature-event-hub
+          # scan_mode and rapid_compare_mode determine the type of scan to perform
+          # FULL scan on main, RAPID scan on a PR that will only tag issues introduced by the PR
+          # not pre-existing issues that could have appeared in the main branch in the meantime
+          scan_mode: FULL
+          rapid_compare_mode: BOM_COMPARE
+
   build:
 
     runs-on: ubuntu-latest
@@ -18,19 +49,40 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Build
-        uses: ./.github/actions/build
+        uses: cap-java/.github/actions/build@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
         with:
           java-version: ${{ matrix.java-version }}
           maven-version: ${{ env.MAVEN_VERSION }}
 
       #- name: SonarQube Scan
-      #  uses: ./.github/actions/scan-with-sonar
-      #  if: ${{ matrix.java-version == 17 }}
+      #  uses: cap-java/.github/actions/scan-with-sonar@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
+      #  if: ${{ matrix.java-version == 21 }}
       #  with:
       #    java-version: ${{ matrix.java-version }}
       #    maven-version: ${{ env.MAVEN_VERSION }}
       #    sonarq-token: ${{ secrets.SONARQ_TOKEN }}
       #    github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  codeql:
+    name: CodeQL Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Scan With CodeQL
+        uses: cap-java/.github/actions/scan-with-codeql@296573b55e906f5c77a1855bcfe4285cbbc5cac4 # main
+        with:
+          maven-version: ${{ env.MAVEN_VERSION }}
+          java-version: '21'
+          language: java-kotlin
+          queries: security-extended
