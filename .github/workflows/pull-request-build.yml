@@ -36,7 +36,7 @@ jobs:
           # scan_mode and rapid_compare_mode determine the type of scan to perform
           # FULL scan on main, RAPID scan on a PR that will only tag issues introduced by the PR
           # not pre-existing issues that could have appeared in the main branch in the meantime
-          scan_mode: FULL
+          scan_mode: RAPID
           rapid_compare_mode: BOM_COMPARE
 
   build:
