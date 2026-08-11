@@ -53,14 +53,19 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			logger.error("Missing ceSource in binding credentials, emit() will be deactivated");
 		}
 
-		if (binding.getCredentials().containsKey(SYSTEM_ID)) {
-			this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
-		} else {
+		isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
+
+		if (isMultitenant) {
 			this.systemId = null;
-			logger.error("Missing systemId in binding credentials, emit() will be deactivated");
+		} else {
+			if (binding.getCredentials().containsKey(SYSTEM_ID)) {
+				this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
+			} else {
+				this.systemId = null;
+				logger.error("Missing systemId in binding credentials, emit() will be deactivated");
+			}
 		}
 
-		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
 		this.queueListener = new MessagingBrokerQueueListener(this, serviceConfig, toFullyQualifiedQueueName(queue), queue, cdsRuntime);
 
 		if (EventHubBindingUtils.bindingHasEndpoints(binding)) {
