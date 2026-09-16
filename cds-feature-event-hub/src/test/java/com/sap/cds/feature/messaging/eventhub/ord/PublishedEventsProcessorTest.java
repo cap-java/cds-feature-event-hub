@@ -51,15 +51,15 @@ class PublishedEventsProcessorTest {
 			""".formatted(TEST_EVENT_ORD_ID);
 	private final String INT_DEPS_RESULT = """
 				[ {
-				"ordId" : "sap.cdsjavacpoc:integrationDependency:RawEvent:v1",
-						"title" : "Customer Integration Needs",
+				"ordId" : "sap.cdsjavacpoc:integrationDependency:consumedEvents:v1",
+						"title" : "Consumed Events",
 						"partOfPackage" : "a:b:c",
 						"version" : "1.0.0",
 						"visibility" : "public",
 						"releaseStatus" : "active",
 						"mandatory" : false,
 						"aspects" : [ {
-					"title" : "RawEvent",
+					"title" : "Subscribed Event Types",
 							"mandatory" : false,
 							"eventResources" : [ {
 						"ordId" : "%s",

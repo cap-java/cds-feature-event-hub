@@ -101,11 +101,11 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		// - Create a new IntegrationDependency object with the mandatory fields:
 		ObjectNode integrationDependency = JsonNodeFactory.instance.objectNode();
 
-		//   - ordId: "<namespace>:integrationDependency:RawEvent:v1"
-		integrationDependency.put("ordId", namespace + ":integrationDependency:RawEvent:v1");
+		//   - ordId: "<namespace>:integrationDependency:consumedEvents:v1"
+		integrationDependency.put("ordId", namespace + ":integrationDependency:consumedEvents:v1");
 
-		//   - title: "Customer Integration Needs"
-		integrationDependency.put("title", "Customer Integration Needs");
+		//   - title: "Consumed Events"
+		integrationDependency.put("title", "Consumed Events");
 
 		//   - partOfPackage:
 		integrationDependency.put("partOfPackage", this.packageOrdId);
@@ -127,8 +127,8 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		ObjectNode aspectObject = JsonNodeFactory.instance.objectNode();
 		aspectsArray.add(aspectObject);
 		integrationDependency.putIfAbsent("aspects", aspectsArray);
-		//     - title: "RawEvent"
-		aspectObject.put("title", "RawEvent");
+		//     - title: "Subscribed Event Types"
+		aspectObject.put("title", "Subscribed Event Types");
 		//     - mandatory: false
 		aspectObject.put("mandatory", false);
 
