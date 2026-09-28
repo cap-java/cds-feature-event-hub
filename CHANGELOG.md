@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Version 4.1.1 - TBD
+
+### Added
+
+- Support overriding the CloudEvent `source` suffix per message via the `eventhub.btp.subaccountId` header, for multitenant scenarios where the tenant ID differs from the subaccount ID registered as the UCL system ID
+
 ## Version 4.1.0 - 2026-03-09
 
 ### Added
