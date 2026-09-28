@@ -29,6 +29,18 @@ The usage of CAP Java plugins is described in the [CAP Java Documentation](https
 
 The latest version can be found in the [changelog](./CHANGELOG.md) or in the [Maven Central Repository](https://central.sonatype.com/artifact/com.sap.cds/cds-feature-event-hub/versions).
 
+### Overriding the CloudEvent source suffix
+
+In multitenant scenarios the CloudEvent `source` is composed of the configured `ceSource` and, by default, the current tenant ID. If the tenant ID differs from the subaccount ID registered as the UCL system ID, an application can override the suffix per message by setting the `eventhub.btp.subaccountId` header when emitting the event:
+
+```java
+Map<String, Object> headers = new HashMap<>();
+headers.put("eventhub.btp.subaccountId", subaccountId);
+// emit the event with these headers
+```
+
+The header is consumed by the plugin and is not included in the outgoing message. If it is absent or blank, the tenant ID is used as before.
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-java/cds-feature-event-hub/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
