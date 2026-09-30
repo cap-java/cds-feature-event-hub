@@ -44,7 +44,6 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 
 	private CdsRuntime runtime;
 
-	private boolean processedNode = false;
 	private String packageOrdId;
 	private String packageVersion;
 	private boolean hasEventHubBinding = false;
@@ -58,7 +57,7 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 
 	@Override
 	public boolean canGenerate() {
-		return !this.processedNode && hasEventHubBinding;
+		return hasEventHubBinding;
 	}
 
 	@Override
@@ -151,8 +150,6 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		});
 
 		integrationDependenciesArray.add(integrationDependency);
-
-		this.processedNode = true;
 
 		return Optional.of((T) resultNode);
 	}
