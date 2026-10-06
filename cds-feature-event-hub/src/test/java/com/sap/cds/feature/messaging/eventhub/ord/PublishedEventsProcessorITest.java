@@ -12,7 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import com.jayway.jsonpath.JsonPath;
-import com.sap.cds.feature.ord.processor.OrdJsonInputStream;
+import com.sap.cds.feature.ord.common.OrdJsonInputStream;
 import com.sap.cds.reflect.CdsModel;
 import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.environment.CdsProperties.Messaging.MessagingServiceConfig;
