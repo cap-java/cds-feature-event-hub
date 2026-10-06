@@ -32,6 +32,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 	private static final Logger logger = LoggerFactory.getLogger(EventHubMessagingService.class);
 	public static final String CE_SOURCE = "ceSource";
 	public static final String SYSTEM_ID = "systemId";
+	public static final String KEY_SUBACCOUNT_ID = "eventhub.btp.subaccountId";
 
 	private final String ceSource;
 	private final String systemId;
@@ -53,14 +54,19 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			logger.error("Missing ceSource in binding credentials, emit() will be deactivated");
 		}
 
-		if (binding.getCredentials().containsKey(SYSTEM_ID)) {
-			this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
-		} else {
+		isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
+
+		if (isMultitenant) {
 			this.systemId = null;
-			logger.error("Missing systemId in binding credentials, emit() will be deactivated");
+		} else {
+			if (binding.getCredentials().containsKey(SYSTEM_ID)) {
+				this.systemId = (String) binding.getCredentials().get(SYSTEM_ID);
+			} else {
+				this.systemId = null;
+				logger.error("Missing systemId in binding credentials, emit() will be deactivated");
+			}
 		}
 
-		this.isMultitenant = EventHubBindingUtils.isBindingMultitenant(binding);
 		this.queueListener = new MessagingBrokerQueueListener(this, serviceConfig, toFullyQualifiedQueueName(queue), queue, cdsRuntime);
 
 		if (EventHubBindingUtils.bindingHasEndpoints(binding)) {
@@ -151,8 +157,7 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			if (ceSource == null) {
 				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
 			}
-			
-			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + tenant);
+			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + resolveSourceSuffix(headers, tenant));
 		} else {
 			if (systemId == null) {
 				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_SYSTEM_ID);
@@ -160,7 +165,6 @@ public class EventHubMessagingService extends AbstractMessagingService {
 			if (ceSource == null) {
 				throw new ErrorStatusException(EventHubErrorStatuses.EVENT_HUB_EMIT_MISSING_CE_SOURCE);
 			}
-			
 			headers.put(CloudEventUtils.KEY_SOURCE, ceSource + systemId);
 		}
 
@@ -170,6 +174,13 @@ public class EventHubMessagingService extends AbstractMessagingService {
 		} catch (IOException e) {
 			throw new ErrorStatusException(CdsErrorStatuses.EVENT_EMITTING_FAILED, topic, e);
 		}
+	}
+
+	// Allows the application to use the BTP subaccount ID as the ceSource suffix at the application level.
+	// Relevant when the tenant ID differs from the subaccount ID registered as the UCL system ID.
+	String resolveSourceSuffix(Map<String, Object> headers, String tenant) {
+		String subaccountId = (String) headers.remove(KEY_SUBACCOUNT_ID);
+		return subaccountId != null ? subaccountId : tenant;
 	}
 
 	private String getTenant(EventContext context) {
