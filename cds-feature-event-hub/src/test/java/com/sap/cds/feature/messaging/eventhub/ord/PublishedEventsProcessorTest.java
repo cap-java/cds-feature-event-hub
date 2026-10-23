@@ -6,8 +6,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.cds.reflect.CdsModel;
 import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.impl.environment.SimplePropertiesProvider;
 import com.sap.cds.services.messaging.MessagingService;
@@ -33,27 +36,40 @@ class PublishedEventsProcessorTest {
 
 	private final String PACKAGE_ORD_ID = "a:b:c";
 	private final String PACKAGE_VERSION = "1.0.0";
+	private static final String TEST_EVENT_ORD_ID = "sap.demo:eventResource:TestEvents:v1";
+	// minimal, hand-crafted CSN with an `@OrdId`-annotated event; matches the output of `cds compile --to json`
+	private static final String CSN = """
+			{
+			  "definitions": {
+			    "testEvent": {
+			      "kind": "event",
+			      "@OrdId": "%s",
+			      "elements": {}
+			    }
+			  }
+			}
+			""".formatted(TEST_EVENT_ORD_ID);
 	private final String INT_DEPS_RESULT = """
 				[ {
-				"ordId" : "sap.cdsjavacpoc:integrationDependency:RawEvent:v1",
-						"title" : "Customer Integration Needs",
+				"ordId" : "sap.cdsjavacpoc:integrationDependency:consumedEvents:v1",
+						"title" : "Consumed Events",
 						"partOfPackage" : "a:b:c",
 						"version" : "1.0.0",
 						"visibility" : "public",
 						"releaseStatus" : "active",
 						"mandatory" : false,
 						"aspects" : [ {
-					"title" : "RawEvent",
+					"title" : "Subscribed Event Types",
 							"mandatory" : false,
 							"eventResources" : [ {
-						"ordId" : "sap.cdsjavacpoc:eventResource:RawEvent:v1",
+						"ordId" : "%s",
 								"subset" : [ {
 							"eventType" : "testEvent"
 						} ]
 					} ]
 				} ]
 			} ]
-			""";
+			""".formatted(TEST_EVENT_ORD_ID);
 
 	@Test
 	void testPredicate() {
@@ -170,8 +186,38 @@ class PublishedEventsProcessorTest {
 		assertThat(events.size(), is(0));
 	}
 
-	@BeforeEach
-	public void prepare() {
+	@Test
+	void testGetOrdAnnotatedConsumedEvents_groupsByOrdId() {
+		var publishedEventsProcessor = new PublishedEventsProcessor();
+		publishedEventsProcessor.setCdsRuntime(this.runtime);
+
+		Map<String, List<String>> ordIdToEvents = publishedEventsProcessor.getOrdAnnotatedConsumedEvents();
+
+		assertThat(ordIdToEvents.keySet(), is(Set.of(TEST_EVENT_ORD_ID)));
+		assertThat(ordIdToEvents.get(TEST_EVENT_ORD_ID), is(List.of("testEvent")));
+	}
+
+	@Test
+	void testGetOrdAnnotatedConsumedEvents_ignoresEventsWithoutAnnotation() {
+		this.runtime = CdsRuntimeConfigurer.create(new SimplePropertiesProvider(buildProperties()))
+				.cdsModel(CdsModel.reader().readCsn("""
+						{ "definitions": { "testEvent": { "kind": "event", "elements": {} } } }
+						"""))
+				.serviceConfigurations()
+				.eventHandlerConfigurations()
+				.providerConfigurations()
+				.complete();
+		AbstractMessagingService messagingService = (AbstractMessagingService) OutboxService.unboxed(runtime.getServiceCatalog().getService(MessagingService.class, "eb-mt-tests-eb"));
+		messagingService.on("testEvent", null, event -> System.out.println("Event received: " + event));
+		messagingService.init();
+
+		var publishedEventsProcessor = new PublishedEventsProcessor();
+		publishedEventsProcessor.setCdsRuntime(this.runtime);
+
+		assertThat(publishedEventsProcessor.getOrdAnnotatedConsumedEvents().isEmpty(), is(true));
+	}
+
+	private CdsProperties buildProperties() {
 		CdsProperties properties = new CdsProperties();
 		Map<String, CdsProperties.Messaging.MessagingServiceConfig> services = new HashMap<>();
 
@@ -179,8 +225,13 @@ class PublishedEventsProcessorTest {
 		messagingServiceConfig.setKind("event-hub");
 		services.put("eb-mt-tests-eb", messagingServiceConfig);
 		properties.getMessaging().setServices(services);
+		return properties;
+	}
 
-		this.runtime = CdsRuntimeConfigurer.create(new SimplePropertiesProvider(properties))
+	@BeforeEach
+	public void prepare() {
+		this.runtime = CdsRuntimeConfigurer.create(new SimplePropertiesProvider(buildProperties()))
+				.cdsModel(CdsModel.reader().readCsn(CSN))
 				.serviceConfigurations()
 				.eventHandlerConfigurations()
 				.providerConfigurations()

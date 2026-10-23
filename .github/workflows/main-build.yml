@@ -1,12 +1,12 @@
 name: Main build and deploy
 
 env:
-  JAVA_VERSION: '17'
-  MAVEN_VERSION: '3.9.15'
+  JAVA_VERSION: "21"
+  MAVEN_VERSION: "3.9.15"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17, 21 ]
+        java-version: [21]
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -107,7 +107,7 @@ jobs:
       - name: Print Revision
         run: echo "Current revision ${{ steps.get-revision.outputs.REVISION }}"
         shell: bash
-  
+
       - name: Deploy snapshot
         if: ${{ endsWith(steps.get-revision.outputs.REVISION, '-SNAPSHOT') }}
         # https://maven.apache.org/plugins/maven-deploy-plugin/usage.html#the-deploy-deploy-mojo

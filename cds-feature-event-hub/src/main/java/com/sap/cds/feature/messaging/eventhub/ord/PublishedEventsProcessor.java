@@ -4,8 +4,11 @@ import static com.sap.cds.feature.messaging.eventhub.service.EventHubMessagingSe
 import static com.sap.cds.feature.messaging.eventhub.service.EventHubMessagingServiceConfiguration.KIND_LABEL;
 import static com.sap.cds.services.messaging.MessagingService.EVENT_MESSAGING_ERROR;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -34,12 +37,13 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 
 public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 	private static final String INTEGRATION_DEPENDENCIES_KEY = "integrationDependencies";
+	// CDS annotation (without leading '@') used to declare the ORD event resource a consumed event belongs to
+	private static final String ORD_ID_ANNOTATION = "OrdId";
 
 	private static final Logger logger = LoggerFactory.getLogger(PublishedEventsProcessor.class);
 
 	private CdsRuntime runtime;
 
-	private boolean processedNode = false;
 	private String packageOrdId;
 	private String packageVersion;
 	private boolean hasEventHubBinding = false;
@@ -53,7 +57,7 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 
 	@Override
 	public boolean canGenerate() {
-		return !this.processedNode && hasEventHubBinding;
+		return hasEventHubBinding;
 	}
 
 	@Override
@@ -76,7 +80,7 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		JsonNode resultNode;
 		ArrayNode integrationDependenciesArray;
 
-		List<String> consumedEvents = this.getConsumedEvents();
+		Map<String, List<String>> ordIdToEvents = this.getOrdAnnotatedConsumedEvents();
 
 		// - if node is null, create a new node named "integrationDependencies" which is an array node,
 		//   otherwise use the passed node for further processing
@@ -84,7 +88,7 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 			// TODO This does not work!!! -> needs to be fixed
 			integrationDependenciesArray = JsonNodeFactory.instance.arrayNode();
 			resultNode = integrationDependenciesArray;
-		} else if (consumedEvents.isEmpty()) {
+		} else if (ordIdToEvents.isEmpty()) {
 			return Optional.empty();
 		} else {
 			resultNode = (JsonNode) node;
@@ -96,11 +100,11 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		// - Create a new IntegrationDependency object with the mandatory fields:
 		ObjectNode integrationDependency = JsonNodeFactory.instance.objectNode();
 
-		//   - ordId: "<namespace>:integrationDependency:RawEvent:v1"
-		integrationDependency.put("ordId", namespace + ":integrationDependency:RawEvent:v1");
+		//   - ordId: "<namespace>:integrationDependency:consumedEvents:v1"
+		integrationDependency.put("ordId", namespace + ":integrationDependency:consumedEvents:v1");
 
-		//   - title: "Customer Integration Needs"
-		integrationDependency.put("title", "Customer Integration Needs");
+		//   - title: "Consumed Events"
+		integrationDependency.put("title", "Consumed Events");
 
 		//   - partOfPackage:
 		integrationDependency.put("partOfPackage", this.packageOrdId);
@@ -122,30 +126,30 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 		ObjectNode aspectObject = JsonNodeFactory.instance.objectNode();
 		aspectsArray.add(aspectObject);
 		integrationDependency.putIfAbsent("aspects", aspectsArray);
-		//     - title: "RawEvent"
-		aspectObject.put("title", "RawEvent");
+		//     - title: "Subscribed Event Types"
+		aspectObject.put("title", "Subscribed Event Types");
 		//     - mandatory: false
 		aspectObject.put("mandatory", false);
 
-		//     - eventResources: (array)
+		//     - eventResources: (array), one entry per distinct @OrdId value found among consumed events
 		ArrayNode eventResourcesArray = JsonNodeFactory.instance.arrayNode();
-		ObjectNode eventResourceObject = JsonNodeFactory.instance.objectNode();
-		eventResourcesArray.add(eventResourceObject);
 		aspectObject.putIfAbsent("eventResources", eventResourcesArray);
-		//       - ordId: "<namespace>:eventResource:RawEvent:v1"
-		eventResourceObject.put("ordId", namespace + ":eventResource:RawEvent:v1");
-		//       - subset: (array)
-		ArrayNode subsetArray = JsonNodeFactory.instance.arrayNode();
-		eventResourceObject.putIfAbsent("subset", subsetArray);
-		consumedEvents.forEach(eventType -> {
-			ObjectNode subsetObject = JsonNodeFactory.instance.objectNode();
-			subsetObject.put("eventType", eventType);
-			subsetArray.add(subsetObject);
+		ordIdToEvents.forEach((eventResourceOrdId, eventTypes) -> {
+			ObjectNode eventResourceObject = JsonNodeFactory.instance.objectNode();
+			//       - ordId: value of the `@OrdId` annotation on the consumed event(s)
+			eventResourceObject.put("ordId", eventResourceOrdId);
+			//       - subset: (array)
+			ArrayNode subsetArray = JsonNodeFactory.instance.arrayNode();
+			eventResourceObject.putIfAbsent("subset", subsetArray);
+			eventTypes.forEach(eventType -> {
+				ObjectNode subsetObject = JsonNodeFactory.instance.objectNode();
+				subsetObject.put("eventType", eventType);
+				subsetArray.add(subsetObject);
+			});
+			eventResourcesArray.add(eventResourceObject);
 		});
 
 		integrationDependenciesArray.add(integrationDependency);
-
-		this.processedNode = true;
 
 		return Optional.of((T) resultNode);
 	}
@@ -203,6 +207,27 @@ public class PublishedEventsProcessor implements CdsOrdNodeProcessor {
 			this.hasEventHubBinding = true;
 			this.namespace = retrieveNamespaceFromBindings(binding.get());
 		}
+	}
+
+	/**
+	 * Determine the consumed events that are annotated with `@OrdId` in the CDS model
+	 * and group them by their `@OrdId` value.
+	 */
+	@VisibleForTesting
+	Map<String, List<String>> getOrdAnnotatedConsumedEvents() {
+		Set<String> consumedEvents = new HashSet<>(this.getConsumedEvents());
+		Map<String, List<String>> ordIdToEvents = new LinkedHashMap<>();
+
+		this.runtime.getCdsModel().events()
+				.filter(event -> consumedEvents.contains(event.getQualifiedName()))
+				.forEach(event -> {
+					String ordId = event.getAnnotationValue(ORD_ID_ANNOTATION, (String) null);
+					if (ordId != null) {
+						ordIdToEvents.computeIfAbsent(ordId, key -> new ArrayList<>()).add(event.getQualifiedName());
+					}
+				});
+
+		return ordIdToEvents;
 	}
 
 	@VisibleForTesting

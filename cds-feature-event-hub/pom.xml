@@ -34,6 +34,7 @@
       <groupId>com.sap.cds</groupId>
       <artifactId>cds-feature-ord</artifactId>
       <!-- Event Hub feature contributes content to ORD if that is used as well -->
+      <version>6.0.2</version>
       <optional>true</optional>
     </dependency>
 

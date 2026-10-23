@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Unreleased
+
+### Changed
+
+- Generated Integration Dependency now groups consumed events into event resources by their `@OrdId` CDS annotation (previously all consumed events were bundled into a single fixed `RawEvent` event resource). Only events that are both consumed and annotated with `@OrdId` are included.
+
 ## Version 4.1.1 - 2026-10-14
 
 ### Added

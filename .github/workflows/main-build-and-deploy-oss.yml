@@ -1,12 +1,12 @@
 name: Deploy to Maven Central
 
 env:
-  JAVA_VERSION: '17'
-  MAVEN_VERSION: '3.9.15'
+  JAVA_VERSION: "21"
+  MAVEN_VERSION: "3.9.15"
 
 on:
   release:
-    types: [ "released" ]
+    types: ["released"]
 
 jobs:
   # blackduck:
@@ -49,26 +49,26 @@ jobs:
           language: java-kotlin
           queries: security-extended
 
-#  update-version:
-#    name: Update Version
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-#        with:
-#          token: ${{ secrets.GH_TOKEN }}
-#      - name: Update version
-#        uses: ./.github/actions/newrelease
-#        with:
-#          java-version: ${{ env.JAVA_VERSION }}
-#          maven-version: ${{ env.MAVEN_VERSION }}
-#      - name: Upload Changed Artifacts
-#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7
-#        with:
-#          name: root-new-version
-#          path: .
-#          include-hidden-files: true
-#          retention-days: 1
+  #  update-version:
+  #    name: Update Version
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+  #        with:
+  #          token: ${{ secrets.GH_TOKEN }}
+  #      - name: Update version
+  #        uses: ./.github/actions/newrelease
+  #        with:
+  #          java-version: ${{ env.JAVA_VERSION }}
+  #          maven-version: ${{ env.MAVEN_VERSION }}
+  #      - name: Upload Changed Artifacts
+  #        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7
+  #        with:
+  #          name: root-new-version
+  #          path: .
+  #          include-hidden-files: true
+  #          retention-days: 1
 
   requires-approval:
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: Approval Step
         run: echo "Release has been approved!"
-      
+
   build:
     name: Build
     runs-on: ubuntu-latest

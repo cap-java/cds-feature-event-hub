@@ -12,7 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import com.jayway.jsonpath.JsonPath;
-import com.sap.cds.feature.ord.processor.OrdJsonInputStream;
+import com.sap.cds.feature.ord.common.OrdJsonInputStream;
+import com.sap.cds.reflect.CdsModel;
 import com.sap.cds.services.environment.CdsProperties;
 import com.sap.cds.services.environment.CdsProperties.Messaging.MessagingServiceConfig;
 import com.sap.cds.services.impl.environment.SimplePropertiesProvider;
@@ -42,8 +43,26 @@ class PublishedEventsProcessorITest {
 		messagingServiceConfig.setKind("event-hub");
 		messagingServiceConfig.getOutbox().setEnabled(false);
 		properties.getMessaging().getServices().put("eb-mt-tests-eb", messagingServiceConfig);
+		// both consumed events are annotated with `@OrdId`, matching the output of `cds compile --to json`
+		String csn = """
+				{
+				  "definitions": {
+				    "testEvent": {
+				      "kind": "event",
+				      "@OrdId": "sap.demo:eventResource:TestEvents:v1",
+				      "elements": {}
+				    },
+				    "com.sap.cds.ord.test-event": {
+				      "kind": "event",
+				      "@OrdId": "sap.demo:eventResource:TestEvents:v1",
+				      "elements": {}
+				    }
+				  }
+				}
+				""";
 		CdsRuntime runtime = CdsRuntimeConfigurer
 				.create(new SimplePropertiesProvider(properties))
+				.cdsModel(CdsModel.reader().readCsn(csn))
 				.serviceConfigurations()
 				.eventHandlerConfigurations()
 				.providerConfigurations()
